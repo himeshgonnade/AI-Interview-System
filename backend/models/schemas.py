@@ -60,6 +60,7 @@ class SessionResponse(BaseModel):
     config: SessionConfig
     created_at: datetime
     status: str = "active"
+    max_questions: int = 7  # derived from duration_minutes
 
 
 # ─────────────────────────────────────────
@@ -83,6 +84,28 @@ class QuestionResponse(BaseModel):
     question_number: int
     is_followup: bool = False
     total_questions: int
+
+
+# ─────────────────────────────────────────
+# Question Request / Response (Module 2)
+# ─────────────────────────────────────────
+
+class QuestionRequest(BaseModel):
+    """Request body for POST /api/question/next"""
+    session_id: str
+    last_answer_quality: Optional[Literal["weak", "average", "strong"]] = None
+
+
+class NextQuestionResponse(BaseModel):
+    """Response from POST /api/question/next"""
+    question_id: str
+    session_id: str
+    text: str
+    question_number: int
+    is_followup: bool = False
+    difficulty: str
+    questions_remaining: int
+    is_complete: bool  # True when session has reached max questions
 
 
 # ─────────────────────────────────────────

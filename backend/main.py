@@ -52,24 +52,29 @@ async def health_check():
         "status": "healthy",
         "environment": settings.environment,
         "groq_configured": bool(settings.groq_api_key),
+        "groq_model": settings.groq_model,
         "mongodb_configured": bool(settings.mongodb_uri),
     }
 
 
 # ─────────────────────────────────────────
-# Routers (will be added module by module)
+# Routers
 # ─────────────────────────────────────────
 
-# from routes.session import router as session_router
-# from routes.question import router as question_router
+# ✔ Module 2: Session + Question Generation
+from routes.session import router as session_router
+from routes.question import router as question_router
+
+app.include_router(session_router, prefix="/api/session", tags=["Session"])
+app.include_router(question_router, prefix="/api/question", tags=["Questions"])
+
+# ⏳ Module 3+ (uncomment as modules are completed)
 # from routes.answer import router as answer_router
 # from routes.transcribe import router as transcribe_router
 # from routes.confidence import router as confidence_router
 # from routes.report import router as report_router
 # from routes.resume import router as resume_router
 
-# app.include_router(session_router, prefix="/api/session", tags=["Session"])
-# app.include_router(question_router, prefix="/api/question", tags=["Questions"])
 # app.include_router(answer_router, prefix="/api/answer", tags=["Answers"])
 # app.include_router(transcribe_router, prefix="/api/transcribe", tags=["Transcription"])
 # app.include_router(confidence_router, prefix="/api/confidence", tags=["Confidence"])

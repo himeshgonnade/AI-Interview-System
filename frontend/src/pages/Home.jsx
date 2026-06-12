@@ -4,8 +4,9 @@ import { motion } from 'framer-motion'
 import {
   Brain, Code2, Globe, Smartphone, Users, Network, Zap,
   Clock, BarChart2, Mic, Type, ChevronRight, Sparkles,
-  Star, ArrowRight
+  Star, ArrowRight, Loader2, AlertCircle
 } from 'lucide-react'
+import { startSession } from '../api/client'
 
 // ─── Data ───────────────────────────────────────────────
 
@@ -134,6 +135,8 @@ function StepBadge({ number, label, active, done }) {
 export default function Home() {
   const navigate = useNavigate()
   const [step, setStep] = useState(1) // 1=domain, 2=config, 3=mode
+  const [isStarting, setIsStarting] = useState(false)
+  const [startError, setStartError] = useState('')
   const [config, setConfig] = useState({
     domain: '',
     experience: 'Fresher',
@@ -148,10 +151,44 @@ export default function Home() {
 
   const updateConfig = (key, value) => setConfig(prev => ({ ...prev, [key]: value }))
 
-  const handleStart = () => {
-    // Store config in sessionStorage and navigate
-    sessionStorage.setItem('interviewConfig', JSON.stringify(config))
-    navigate('/interview')
+  const handleStart = async () => {
+    setIsStarting(true)
+    setStartError('')
+    try {
+      // Map frontend domain ids to backend enum values
+      const domainMap = {
+        'AIML': 'AIML',
+        'Data Science': 'Data Science',
+        'Web Development': 'Web Development',
+        'DSA': 'DSA',
+        'Android': 'Android',
+        'HR Interview': 'HR Interview',
+        'Custom': 'Custom',
+      }
+
+      const sessionConfig = {
+        domain: domainMap[config.domain] || config.domain,
+        experience: config.experience,
+        difficulty: config.difficulty,
+        duration_minutes: config.duration_minutes,
+        answer_mode: config.answer_mode,
+        custom_domain: config.custom_domain || null,
+        job_description: config.job_description || null,
+        resume_text: null,
+      }
+
+      const session = await startSession(sessionConfig)
+
+      // Persist session info for the Interview page
+      sessionStorage.setItem('sessionId', session.session_id)
+      sessionStorage.setItem('sessionConfig', JSON.stringify(sessionConfig))
+      sessionStorage.setItem('maxQuestions', String(session.max_questions))
+
+      navigate(`/interview?session=${session.session_id}`)
+    } catch (err) {
+      setStartError(err.message || 'Failed to start interview. Please try again.')
+      setIsStarting(false)
+    }
   }
 
   const canProceedStep1 = config.domain !== ''
@@ -467,29 +504,51 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* Error message */}
+              {startError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm mb-4"
+                >
+                  <AlertCircle size={16} />
+                  {startError}
+                </motion.div>
+              )}
+
               <div className="flex gap-3">
                 <button
                   id="btn-back-step3"
                   onClick={() => setStep(2)}
-                  className="btn-secondary flex-1"
+                  disabled={isStarting}
+                  className="btn-secondary flex-1 disabled:opacity-40"
                 >
                   ← Back
                 </button>
                 <motion.button
                   id="btn-start-interview"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={canStart && !isStarting ? { scale: 1.02 } : {}}
+                  whileTap={canStart && !isStarting ? { scale: 0.98 } : {}}
                   onClick={handleStart}
-                  disabled={!canStart}
+                  disabled={!canStart || isStarting}
                   className="flex-1 py-3.5 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
                   style={{
                     background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #059669 100%)',
-                    boxShadow: canStart ? '0 0 30px rgba(99,102,241,0.4)' : 'none',
+                    boxShadow: canStart && !isStarting ? '0 0 30px rgba(99,102,241,0.4)' : 'none',
                   }}
                 >
-                  <Brain size={18} />
-                  Start Interview
-                  <ChevronRight size={16} />
+                  {isStarting ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Creating Session...
+                    </>
+                  ) : (
+                    <>
+                      <Brain size={18} />
+                      Start Interview
+                      <ChevronRight size={16} />
+                    </>
+                  )}
                 </motion.button>
               </div>
             </div>

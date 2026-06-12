@@ -18,6 +18,8 @@ import os
 class Settings(BaseSettings):
     # ── LLM ────────────────────────────────────────────
     groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"  # Override via GROQ_MODEL env var
+    max_questions_per_hour: int = 100             # Soft rate-limit awareness
 
     # ── Database ────────────────────────────────────────
     mongodb_uri: str = ""

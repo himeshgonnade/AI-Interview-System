@@ -42,3 +42,82 @@ api.interceptors.response.use(
 )
 
 export default api
+
+// ═══════════════════════════════════════════════════════════
+// Session API
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Create a new interview session.
+ * @param {Object} config - SessionConfig (domain, experience, difficulty, etc.)
+ * @returns {Promise<{session_id, config, created_at, status, max_questions}>}
+ */
+export const startSession = async (config) => {
+  const { data } = await api.post('/session/start', { config })
+  return data
+}
+
+/**
+ * Get current session status + progress.
+ * @param {string} sessionId
+ * @returns {Promise<{session_id, status, question_count, max_questions, ...}>}
+ */
+export const getSession = async (sessionId) => {
+  const { data } = await api.get(`/session/${sessionId}`)
+  return data
+}
+
+/**
+ * End an active interview session.
+ * @param {string} sessionId
+ * @returns {Promise<{session_id, status, ended_at}>}
+ */
+export const endSession = async (sessionId) => {
+  const { data } = await api.post(`/session/${sessionId}/end`)
+  return data
+}
+
+// ═══════════════════════════════════════════════════════════
+// Question API
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Get the next interview question (adaptive difficulty).
+ * @param {string} sessionId
+ * @param {string|null} lastAnswerQuality - "weak" | "average" | "strong" | null
+ * @returns {Promise<{question_id, text, question_number, difficulty, questions_remaining, is_complete}>}
+ */
+export const getNextQuestion = async (sessionId, lastAnswerQuality = null) => {
+  const { data } = await api.post('/question/next', {
+    session_id: sessionId,
+    last_answer_quality: lastAnswerQuality,
+  })
+  return data
+}
+
+/**
+ * Get a follow-up question drilling into the previous answer.
+ * @param {string} sessionId
+ * @param {string} parentQuestionId
+ * @param {string} answerText
+ * @param {string} answerQuality - "weak" | "average" | "strong"
+ */
+export const getFollowupQuestion = async (sessionId, parentQuestionId, answerText, answerQuality) => {
+  const { data } = await api.post('/question/followup', {
+    session_id: sessionId,
+    parent_question_id: parentQuestionId,
+    answer_text: answerText,
+    answer_quality: answerQuality,
+  })
+  return data
+}
+
+/**
+ * Get the full question history for a session.
+ * @param {string} sessionId
+ * @returns {Promise<{session_id, questions: Array, total: number}>}
+ */
+export const getQuestionHistory = async (sessionId) => {
+  const { data } = await api.get(`/question/${sessionId}/history`)
+  return data
+}
