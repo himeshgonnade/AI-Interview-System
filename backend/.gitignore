@@ -1,0 +1,41 @@
+# ─── Python ───────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ─── Virtual Environments ─────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ─── SECRETS — NEVER COMMIT THESE ────────
+.env
+.env.local
+.env.production
+.env.staging
+*.key
+secrets.json
+
+# ─── Logs & temp ──────────────────────────
+*.log
+logs/
+tmp/
+temp/
+uploads/
+audio_temp/
+
+# ─── IDE ──────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── OS ───────────────────────────────────
+.DS_Store
+Thumbs.db

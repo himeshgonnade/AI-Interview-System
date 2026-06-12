@@ -1,0 +1,36 @@
+# ─── SECRETS — NEVER COMMIT ──────────────
+.env
+.env.local
+.env.production
+.env.staging
+*.key
+secrets.json
+
+# ─── Python ───────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# ─── Node / Frontend ──────────────────────
+node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+
+# ─── Uploads / temp audio ─────────────────
+uploads/
+audio_temp/
+*.wav
+*.mp3
+*.webm
+*.ogg
+
+# ─── IDE & OS ─────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
