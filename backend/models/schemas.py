@@ -76,7 +76,7 @@ class Question(BaseModel):
     parent_question_id: Optional[str] = None
     domain: str
     difficulty: str
-
+    is_coding: bool = False
 
 class QuestionResponse(BaseModel):
     question_id: str
@@ -84,7 +84,7 @@ class QuestionResponse(BaseModel):
     question_number: int
     is_followup: bool = False
     total_questions: int
-
+    is_coding: bool = False
 
 # ─────────────────────────────────────────
 # Question Request / Response (Module 2)
@@ -106,7 +106,7 @@ class NextQuestionResponse(BaseModel):
     difficulty: str
     questions_remaining: int
     is_complete: bool  # True when session has reached max questions
-
+    is_coding: bool = False
 
 # ─────────────────────────────────────────
 # Answer Models
@@ -119,6 +119,11 @@ class AnswerSubmit(BaseModel):
     answer_mode: AnswerMode = AnswerMode.TEXT
     audio_duration_seconds: Optional[float] = None
 
+class CodeSubmit(BaseModel):
+    session_id: str
+    question_id: str
+    code: str
+    language: str
 
 class AnswerEvaluation(BaseModel):
     technical_score: float = Field(ge=0, le=10)
@@ -160,6 +165,23 @@ class ImprovementPlan(BaseModel):
     strengths: List[str]
     weaknesses: List[str]
     recommendations: List[str]
+
+
+class GenerateReportRequest(BaseModel):
+    session_id: str
+
+
+# ─────────────────────────────────────────
+# Emotion Models
+# ─────────────────────────────────────────
+
+class EmotionRequest(BaseModel):
+    session_id: str
+    image_base64: str
+
+class EmotionRecord(BaseModel):
+    timestamp: datetime
+    emotion: str
 
 
 class FinalReport(BaseModel):

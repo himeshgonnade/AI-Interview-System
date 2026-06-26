@@ -164,6 +164,7 @@ async def get_next_question(body: NextQuestionRequest):
             difficulty=session.get("current_difficulty", config.difficulty.value),
             questions_remaining=0,
             is_complete=True,
+            is_coding=(config.domain.value == "DSA"),
         )
 
     # Retrieve current difficulty (may have adapted from previous questions)
@@ -227,6 +228,7 @@ async def get_next_question(body: NextQuestionRequest):
         difficulty=new_difficulty.value,
         questions_remaining=questions_remaining,
         is_complete=is_complete,
+        is_coding=(config.domain.value == "DSA"),
     )
 
 
@@ -311,6 +313,7 @@ async def get_followup_question(body: FollowupRequest):
         difficulty=new_difficulty.value,
         questions_remaining=questions_remaining,
         is_complete=is_complete,
+        is_coding=(config.domain.value == "DSA"),
     )
 
 

@@ -68,15 +68,20 @@ from routes.question import router as question_router
 app.include_router(session_router, prefix="/api/session", tags=["Session"])
 app.include_router(question_router, prefix="/api/question", tags=["Questions"])
 
-# ⏳ Module 3+ (uncomment as modules are completed)
-# from routes.answer import router as answer_router
-# from routes.transcribe import router as transcribe_router
-# from routes.confidence import router as confidence_router
-# from routes.report import router as report_router
-# from routes.resume import router as resume_router
+# ✔ Module 3+4+5: Answer Submission, Whisper STT, AI Evaluation
+from routes.answer import router as answer_router
+from routes.transcribe import router as transcribe_router
 
-# app.include_router(answer_router, prefix="/api/answer", tags=["Answers"])
-# app.include_router(transcribe_router, prefix="/api/transcribe", tags=["Transcription"])
-# app.include_router(confidence_router, prefix="/api/confidence", tags=["Confidence"])
-# app.include_router(report_router, prefix="/api/report", tags=["Reports"])
-# app.include_router(resume_router, prefix="/api/resume", tags=["Resume"])
+app.include_router(answer_router, prefix="/api/answer", tags=["Answers"])
+app.include_router(transcribe_router, prefix="/api/transcribe", tags=["Transcription"])
+
+# ✔ Module 6+7+8: Confidence (via answer route), Report, Resume
+from routes.report import router as report_router
+from routes.resume import router as resume_router
+from routes.emotion import router as emotion_router
+from routes.code import router as code_router
+
+app.include_router(report_router, prefix="/api/report", tags=["Reports"])
+app.include_router(resume_router, prefix="/api/resume", tags=["Resume"])
+app.include_router(emotion_router, prefix="/api/emotion", tags=["Emotion"])
+app.include_router(code_router, prefix="/api/code", tags=["Code"])

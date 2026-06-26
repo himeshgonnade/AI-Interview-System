@@ -16,10 +16,12 @@
     "vite": "^8.0.12"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@vitejs/plugin-react": "^6.0.2",
     "axios": "^1.17.0",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.17.0",
-    "react-router-dom": "^7.17.0"
+    "react-router-dom": "^7.17.0",
+    "react-webcam": "^7.2.0"
   }
 }

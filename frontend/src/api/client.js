@@ -121,3 +121,143 @@ export const getQuestionHistory = async (sessionId) => {
   const { data } = await api.get(`/question/${sessionId}/history`)
   return data
 }
+
+// ═══════════════════════════════════════════════════════════
+// Answer API  (Module 3+5)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Submit a candidate's answer and get AI evaluation.
+ * @param {string} sessionId
+ * @param {string} questionId
+ * @param {string} answerText
+ * @param {string} answerMode - "text" | "voice"
+ * @param {number|null} audioDurationSeconds - optional, for voice mode
+ * @returns {Promise<{answer_id, session_id, question_id, evaluation}>}
+ */
+export const submitAnswer = async (
+  sessionId,
+  questionId,
+  answerText,
+  answerMode = 'text',
+  audioDurationSeconds = null
+) => {
+  const { data } = await api.post('/answer/submit', {
+    session_id: sessionId,
+    question_id: questionId,
+    answer_text: answerText,
+    answer_mode: answerMode,
+    audio_duration_seconds: audioDurationSeconds,
+  })
+  return data
+}
+
+// ═══════════════════════════════════════════════════════════
+// Transcription API  (Module 4)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Transcribe an audio Blob via Groq Whisper.
+ * @param {Blob} audioBlob - WebM audio from browser MediaRecorder
+ * @param {string} filename - hint for MIME type, default "recording.webm"
+ * @returns {Promise<{transcript: string, char_count: number, word_count: number}>}
+ */
+export const transcribeAudio = async (audioBlob, filename = 'recording.webm') => {
+  const formData = new FormData()
+  formData.append('audio', audioBlob, filename)
+
+  const { data } = await api.post('/transcribe/', formData, {
+    // Must delete Content-Type so the browser can set it with the correct multipart boundary
+    headers: { 'Content-Type': null },
+    transformRequest: [(data, headers) => {
+      delete headers['Content-Type']
+      delete headers.common?.['Content-Type']
+      return data
+    }],
+    timeout: 60000, // Whisper can take longer for large recordings
+  })
+  return data
+}
+
+// ═══════════════════════════════════════════════════════════
+// Report API  (Module 7)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Fetch the full performance report for a completed session.
+ * First call generates report (~3s); subsequent calls return cached result instantly.
+ * @param {string} sessionId
+ * @returns {Promise<{scores, improvement_plan, per_question_breakdown, ...}>}
+ */
+export const getReport = async (sessionId) => {
+  const { data } = await api.get(`/report/${sessionId}`, { timeout: 45000 })
+  return data
+}
+
+// ═══════════════════════════════════════════════════════════
+// Resume API  (Module 8)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Upload a PDF resume and get extracted plain text back.
+ * @param {File} pdfFile - The PDF File object from a file input
+ * @returns {Promise<{text: string, char_count: number, was_truncated: boolean, filename: string}>}
+ */
+export const parseResume = async (pdfFile) => {
+  const formData = new FormData()
+  formData.append('resume', pdfFile, pdfFile.name)
+
+  const { data } = await api.post('/resume/parse', formData, {
+    // Must delete Content-Type so the browser sets it with the correct multipart boundary
+    headers: { 'Content-Type': null },
+    transformRequest: [(data, headers) => {
+      delete headers['Content-Type']
+      delete headers.common?.['Content-Type']
+      return data
+    }],
+    timeout: 30000,
+  })
+  return data
+}
+
+// ═══════════════════════════════════════════════════════════
+// Emotion API  (Module 9)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Send a webcam frame (base64) to the backend for emotion analysis.
+ * Called silently every ~10s during the interview.
+ * @param {string} sessionId
+ * @param {string} imageBase64 - base64 encoded JPEG from webcam
+ * @returns {Promise<{status: string, emotion?: string}>}
+ */
+export const analyzeEmotion = async (sessionId, imageBase64) => {
+  const { data } = await api.post('/emotion/analyze', {
+    session_id: sessionId,
+    image_base64: imageBase64,
+  }, { timeout: 10000 })
+  return data
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// Code Evaluation API  (Module 10)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Submit code for LLM-based evaluation.
+ * @param {string} sessionId
+ * @param {string} questionId
+ * @param {string} code - user's code
+ * @param {string} language - e.g. "python", "javascript", "java"
+ * @returns {Promise<{status: string, evaluation: Object}>}
+ */
+export const evaluateCode = async (sessionId, questionId, code, language) => {
+  const { data } = await api.post('/code/evaluate', {
+    session_id: sessionId,
+    question_id: questionId,
+    code,
+    language,
+  }, { timeout: 45000 })
+  return data
+}

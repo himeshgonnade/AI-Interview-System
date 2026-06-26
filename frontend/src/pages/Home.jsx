@@ -7,6 +7,7 @@ import {
   Star, ArrowRight, Loader2, AlertCircle
 } from 'lucide-react'
 import { startSession } from '../api/client'
+import ResumeUpload from '../components/ResumeUpload'
 
 // ─── Data ───────────────────────────────────────────────
 
@@ -137,6 +138,7 @@ export default function Home() {
   const [step, setStep] = useState(1) // 1=domain, 2=config, 3=mode
   const [isStarting, setIsStarting] = useState(false)
   const [startError, setStartError] = useState('')
+  const [resumeText, setResumeText] = useState('')
   const [config, setConfig] = useState({
     domain: '',
     experience: 'Fresher',
@@ -174,7 +176,7 @@ export default function Home() {
         answer_mode: config.answer_mode,
         custom_domain: config.custom_domain || null,
         job_description: config.job_description || null,
-        resume_text: null,
+        resume_text: resumeText || null,
       }
 
       const session = await startSession(sessionConfig)
@@ -380,6 +382,13 @@ export default function Home() {
                 </div>
               </div>
 
+              {/* Resume Upload (Module 8) */}
+              <ResumeUpload
+                onResumeParsed={setResumeText}
+                onJdChange={(v) => updateConfig('job_description', v)}
+                jdValue={config.job_description}
+              />
+
               {/* Job Description */}
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">
@@ -390,6 +399,7 @@ export default function Home() {
                   id="job-description-input"
                   placeholder="Paste the job description here. The AI will tailor questions to match the role requirements and identify skill gaps..."
                   className="input-field resize-none h-28 text-sm"
+                  style={{ backgroundColor: 'rgba(12,12,24,0.85)', color: '#e5e7eb' }}
                   value={config.job_description}
                   onChange={e => updateConfig('job_description', e.target.value)}
                 />
