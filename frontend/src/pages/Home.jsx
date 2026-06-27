@@ -7,6 +7,7 @@ import {
   Star, ArrowRight, Loader2, AlertCircle
 } from 'lucide-react'
 import { startSession } from '../api/client'
+import { useAuth } from '../context/AuthContext'
 import ResumeUpload from '../components/ResumeUpload'
 
 // ─── Data ───────────────────────────────────────────────
@@ -135,6 +136,7 @@ function StepBadge({ number, label, active, done }) {
 
 export default function Home() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [step, setStep] = useState(1) // 1=domain, 2=config, 3=mode
   const [isStarting, setIsStarting] = useState(false)
   const [startError, setStartError] = useState('')
@@ -179,7 +181,7 @@ export default function Home() {
         resume_text: resumeText || null,
       }
 
-      const session = await startSession(sessionConfig)
+      const session = await startSession(sessionConfig, user?.user_id || null)
 
       // Persist session info for the Interview page
       sessionStorage.setItem('sessionId', session.session_id)

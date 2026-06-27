@@ -85,3 +85,10 @@ app.include_router(report_router, prefix="/api/report", tags=["Reports"])
 app.include_router(resume_router, prefix="/api/resume", tags=["Resume"])
 app.include_router(emotion_router, prefix="/api/emotion", tags=["Emotion"])
 app.include_router(code_router, prefix="/api/code", tags=["Code"])
+
+# ✔ Auth + History
+from routes.auth import router as auth_router
+from routes.history import router as history_router
+
+app.include_router(auth_router, prefix="/api/auth", tags=["Auth"])
+app.include_router(history_router, prefix="/api/history", tags=["History"])

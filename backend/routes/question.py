@@ -212,7 +212,12 @@ async def get_next_question(body: NextQuestionRequest):
     )
 
     questions_remaining = max(0, max_questions - new_question_number)
-    is_complete = new_question_number >= max_questions
+    # IMPORTANT: is_complete must be False here — a question was just generated
+    # and the user still needs to answer it. The guard at the top of this function
+    # (question_count >= max_questions) is the ONLY place that returns is_complete=True.
+    # Previously this was: is_complete = new_question_number >= max_questions
+    # which caused the frontend to discard the last question without displaying it.
+    is_complete = False
 
     logger.info(
         f"Question {new_question_number}/{max_questions} generated for session {body.session_id} "

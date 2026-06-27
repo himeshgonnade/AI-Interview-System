@@ -64,6 +64,7 @@ async def start_session(body: SessionCreate):
         "question_count": 0,
         "max_questions": max_questions,
         "current_difficulty": body.config.difficulty.value,
+        "user_id": body.user_id,  # None for anonymous sessions
     }
 
     try:

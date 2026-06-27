@@ -37,8 +37,37 @@ class AnswerMode(str, Enum):
 
 
 # ─────────────────────────────────────────
+# Auth Models
+# ─────────────────────────────────────────
+
+class UserCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=100)
+    email: str
+    password: str = Field(min_length=6)
+
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+
+class UserResponse(BaseModel):
+    user_id: str
+    name: str
+    email: str
+    created_at: datetime
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+
+
+# ─────────────────────────────────────────
 # Session Models
 # ─────────────────────────────────────────
+
 
 class SessionConfig(BaseModel):
     domain: InterviewDomain
@@ -53,6 +82,7 @@ class SessionConfig(BaseModel):
 
 class SessionCreate(BaseModel):
     config: SessionConfig
+    user_id: Optional[str] = None  # linked to authenticated user
 
 
 class SessionResponse(BaseModel):

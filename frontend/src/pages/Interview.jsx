@@ -324,6 +324,9 @@ export default function Interview() {
   // Textarea auto-resize ref
   const textareaRef = useRef(null)
 
+  // Guard against React StrictMode double-invocation of the initial fetch
+  const hasFetchedRef = useRef(false)
+
   // ── Guard: redirect if no session ───────────────────────
   useEffect(() => {
     if (!sessionId) navigate('/')
@@ -360,7 +363,15 @@ export default function Interview() {
     }
   }, [sessionId])
 
-  useEffect(() => { fetchNextQuestion() }, [fetchNextQuestion])
+  // Initial fetch — runs once per sessionId.
+  // The hasFetchedRef prevents React StrictMode's double-invocation
+  // from firing two simultaneous requests at mount, which created duplicate Q1 entries.
+  useEffect(() => {
+    if (!sessionId) return
+    if (hasFetchedRef.current) return
+    hasFetchedRef.current = true
+    fetchNextQuestion()
+  }, [sessionId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Emotion capture (Module 9) ───────────────────────────
   useEffect(() => {
@@ -1040,8 +1051,8 @@ export default function Interview() {
                         id="btn-next-question"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={handleNextQuestion}
-                        disabled={isLoading}
+                        onClick={question.questions_remaining === 0 ? handleEndInterview : handleNextQuestion}
+                        disabled={isLoading || isEnding}
                         className="flex-1 py-3 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all duration-300"
                         style={{
                           background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
@@ -1049,7 +1060,7 @@ export default function Interview() {
                         }}
                       >
                         {question.questions_remaining === 0
-                          ? <><CheckCircle2 size={16} /> Finish Interview</>
+                          ? isEnding ? <><Loader2 size={16} className="animate-spin" /> Ending…</> : <><CheckCircle2 size={16} /> Finish Interview</>
                           : <>Next Question <ChevronRight size={16} /></>
                         }
                       </motion.button>

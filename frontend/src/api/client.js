@@ -22,9 +22,15 @@ const api = axios.create({
   timeout: 30000, // 30s — generous for LLM calls
 })
 
-// ── Request interceptor (add auth header if needed in future) ──
+// ── Request interceptor — attach JWT if available ─────────────
 api.interceptors.request.use(
-  (config) => config,
+  (config) => {
+    const token = localStorage.getItem('ai_interview_token')
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
+    return config
+  },
   (error) => Promise.reject(error)
 )
 
@@ -44,6 +50,49 @@ api.interceptors.response.use(
 export default api
 
 // ═══════════════════════════════════════════════════════════
+// Auth API
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Register a new user account.
+ * @param {{ name: string, email: string, password: string }} body
+ * @returns {Promise<{ access_token, token_type, user }>}
+ */
+export const registerUser = async (body) => {
+  const { data } = await api.post('/auth/register', body)
+  return data
+}
+
+/**
+ * Login with email + password.
+ * @param {{ email: string, password: string }} body
+ * @returns {Promise<{ access_token, token_type, user }>}
+ */
+export const loginUser = async (body) => {
+  const { data } = await api.post('/auth/login', body)
+  return data
+}
+
+/**
+ * Get the current authenticated user's profile.
+ * @returns {Promise<UserResponse>}
+ */
+export const getMe = async () => {
+  const { data } = await api.get('/auth/me')
+  return data
+}
+
+/**
+ * Get all past interview sessions for a user.
+ * @param {string} userId
+ * @returns {Promise<{ user_id, sessions, total }>}
+ */
+export const getUserHistory = async (userId) => {
+  const { data } = await api.get(`/history/${userId}`)
+  return data
+}
+
+// ═══════════════════════════════════════════════════════════
 // Session API
 // ═══════════════════════════════════════════════════════════
 
@@ -52,8 +101,8 @@ export default api
  * @param {Object} config - SessionConfig (domain, experience, difficulty, etc.)
  * @returns {Promise<{session_id, config, created_at, status, max_questions}>}
  */
-export const startSession = async (config) => {
-  const { data } = await api.post('/session/start', { config })
+export const startSession = async (config, userId = null) => {
+  const { data } = await api.post('/session/start', { config, user_id: userId })
   return data
 }
 
