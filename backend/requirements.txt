@@ -20,3 +20,4 @@ passlib[bcrypt]==1.7.4
 aiofiles==23.2.1
 opencv-python-headless
 deepface
+tf-keras
