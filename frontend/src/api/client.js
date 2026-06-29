@@ -19,7 +19,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000, // 30s — generous for LLM calls
+  timeout: 120000, // 120s — generous for ML model cold starts
 })
 
 // ── Request interceptor — attach JWT if available ─────────────
@@ -264,7 +264,7 @@ export const parseResume = async (pdfFile) => {
       delete headers.common?.['Content-Type']
       return data
     }],
-    timeout: 30000,
+    timeout: 120000,
   })
   return data
 }
